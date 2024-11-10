@@ -1,56 +1,114 @@
-# Web Browser Based File Encryption / Decryption
+# Save action
 
-Use your web browser to encrypt and decrypt files.
+The save action saves a cache. It works similarly to the `cache` action except that it doesn't first do a restore. This action provides granular ability to save a cache without having to restore it, or to do a save at any stage of the workflow job -- not only in post phase.
 
-## Usage
+## Documentation
 
-Download [web-browser-based-file-encryption-decryption.html](https://github.com/meixler/web-browser-based-file-encryption-decryption/blob/master/web-browser-based-file-encryption-decryption.html), then open the .html document in your web browser.  Or, simply point your web browser to the .html document hosted [here](https://www.meixler-tech.com/web-browser-based-file-encryption-decryption.html).
+### Inputs
 
-Then, use the web page rendered in your browser to encrypt a file using a password.  Use the same password later to decrypt the file.  IMPORTANT: The same password that was used to encrypt the file must be used to decrypt the file later. If you loose or forget the password, it cannot be recovered!
+* `key` - An explicit key for a cache entry. See [creating a cache key](../README.md#creating-a-cache-key).
+* `path` - A list of files, directories, and wildcard patterns to cache. See [`@actions/glob`](https://github.com/actions/toolkit/tree/main/packages/glob) for supported patterns.
+* `upload-chunk-size` - The chunk size used to split up large files during upload, in bytes
 
-## Operation and privacy
+### Outputs
 
-The page uses javascript running within your web browser to encrypt and decrypt files client-side, in-browser. The page makes no network connections during this process, to ensure that your files and password do not leave your web browser during the process. This can be independently verified by reviewing the source code for the page, or by monitoring your web browser's [networking activity](https://developer.mozilla.org/en-US/docs/Tools/Network_Monitor) during operation of the page. The page can also be downloaded and run locally on your system offline. 
+This action has no outputs.
 
-## Cryptography
-
-All client-side cryptography is implemented using the [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API). Files are encrypted using AES-CBC 256-bit symmetric encryption. The encryption key is derived from the password and a random salt using PBKDF2 derivation with 10000 iterations of SHA256 hashing.
+## Use cases
 
 
-## Compatibility with openssl
+### Only save cache
 
-The encryption used by the page is compatible with [openssl](https://www.openssl.org/docs/man1.1.1/man1/openssl-enc.html).
+If you are using separate jobs for generating common artifacts and sharing them across jobs, this action will take care of your cache saving needs.
 
-Files encrypted using the page can be decrypted using openssl using the following command:
-    
-    openssl aes-256-cbc -d -salt -pbkdf2 -iter 10000 -in encryptedfilename -out plaintextfilename
+```yaml
+steps:
+  - uses: actions/checkout@v4
 
-Files encrypted using the following openssl command can be decrypted using the page:
+  - name: Install Dependencies
+    run: /install.sh
 
-    openssl aes-256-cbc -e -salt -pbkdf2 -iter 10000 -in plaintextfilename -out encryptedfilename
+  - name: Build artifacts
+    run: /build.sh
 
-## Running the page offline
+  - uses: actions/cache/save@v4
+    id: cache
+    with:
+      path: path/to/dependencies
+      key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+```
 
-The web page is self-contained. The page does not require any supporting files; all javascript and css for the page is contained in the source code of the page. 
-To run the page locally on your system offline, simply save the page to your system as a .html file, then open the file from your system in your web browser (optionally with networking disabled).
+### Re-evaluate cache key while saving
 
-## Verifying the integrity of the page
+With this save action, the key can now be re-evaluated while executing the action. This helps in cases where lockfiles are generated during the build.
 
-The expected SHA256 checksum hash of the .html file containing the page is:
+Let's say we have a restore step that computes a key at runtime.
 
-    c7398059dffd25fa8a9d81c570250887fba61dc4eafcfca42f9081196389ed05
+#### Restore a cache
 
-If loading the page from a web server, you can verify that the checksum hash of the .html file downloaded from the web server matches the expected checksum hash using the [Page Integrity browser extension](https://www.pageintegrity.net/).
-If running the page offline, it is recommended that you verify that the checksum hash of the .html file matches the expected checksum hash before opening the file in your web browser.
+```yaml
+uses: actions/cache/restore@v4
+id: restore-cache
+with:
+    key: cache-${{ hashFiles('**/lockfiles') }}
+```
 
-## Contributing
+#### Case 1 - Where a user would want to reuse the key as it is
+```yaml
+uses: actions/cache/save@v4
+with:
+    key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+```
 
-Pull requests are welcome.
+#### Case 2 - Where the user would want to re-evaluate the key
 
-## License
+```yaml
+uses: actions/cache/save@v4
+with:
+    key: npm-cache-${{hashfiles(package-lock.json)}}
+```
 
-This project is licensed under the [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) open source license.
+### Always save cache
 
-## Contact
+There are instances where some flaky test cases would fail the entire workflow and users would get frustrated because the builds would run for hours and the cache couldn't be saved as the workflow failed in between.
+For such use-cases, users now have the ability to use the `actions/cache/save` action to save the cache by using an [`always()`](https://docs.github.com/actions/writing-workflows/choosing-what-your-workflow-does/expressions#always) condition.
+This way the cache will always be saved if generated, or a warning will be generated that nothing is found on the cache path. Users can also use the `if` condition to only execute the `actions/cache/save` action depending on the output of previous steps. This way they get more control of when to save the cache.
 
-Please [contact MTI](https://www.meixler-tech.com/contact.php) for any questions or comments concerning this project.
+To avoid saving a cache that already exists, the `cache-hit` output from a restore step should be checked.
+
+The `cache-primary-key` output from the restore step should also be used to ensure
+the cache key does not change during the build if it's calculated based on file contents.
+
+```yaml
+name: Always Caching Primes
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Restore cached Primes
+      id: cache-primes-restore
+      uses: actions/cache/restore@v4
+      with:
+        key: ${{ runner.os }}-primes
+        path: |
+          path/to/dependencies
+          some/other/dependencies
+
+    # Intermediate workflow steps
+
+    - name: Always Save Primes
+      id: cache-primes-save
+      if: always() && steps.cache-primes-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cache-primes-restore.outputs.cache-primary-key }}
+        path: |
+          path/to/dependencies
+          some/other/dependencies
+```
