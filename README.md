@@ -1,114 +1,150 @@
-# Save action
+<div align="center">
+  <img alt="logo_hack_tools" src="https://i.postimg.cc/GtLdZ2rZ/noun-Panama-hat-1454601.png" />
+  <h1>Welcome to HackTools 🛠</h1>
+  <p>
+    <img alt="Version" src="https://img.shields.io/badge/version-0.4.0-blue.svg?cacheSeconds=2592000&style=for-the-badge" />
+    <a href="https://addons.mozilla.org/en-US/firefox/addon/hacktools" target="_blank">
+      <img alt="mozilla" src="https://img.shields.io/badge/Firefox-FF7139?style=for-the-badge&logo=Firefox-Browser&logoColor=white" />
+    </a>
+    <a href="https://chrome.google.com/webstore/detail/hack-tools/cmbndhnoonmghfofefkcccljbkdpamhi?hl=en" target="_blank">
+      <img alt="chrome-extension" src="https://img.shields.io/badge/Google%20Chrome-4285F4?style=for-the-badge&logo=GoogleChrome&logoColor=white" />
+    </a>
+    <a href="https://github.com/LasCC/Hack-Tools/issues/88" target="_blank">
+      <img alt="safari-extension" src="https://img.shields.io/badge/Safari-000000?style=for-the-badge&logo=Safari&logoColor=white" />
+    </a>
+    <img alt="Downloads" src="https://img.shields.io/github/downloads/LasCC/Hack-Tools/total.svg?style=for-the-badge" />
+    <a href="https://inventory.raw.pm/" target="_blank">
+      <img alt="RawSecInventory" src="https://inventory.raw.pm/img/badges/Rawsec-inventoried-FF5050_for-the-badge.svg" />
+    <a/>
+  </p>
+  <p align="center">
+    <a href="#the-all-in-one-red-team-browser-extension-for-web-pentesters"><b>Introduction</b></a>
+    &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+    <a href="#preview"><b>Preview</b></a>
+    &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+    <a href="#install-the-extension"><b>Install</b></a>
+    &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+    <a href="#build-from-source-code"><b>Build</b></a>
+    &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+    <a href="#show-your-support"><b>Support</b></a>
+  </p>
+</div>
 
-The save action saves a cache. It works similarly to the `cache` action except that it doesn't first do a restore. This action provides granular ability to save a cache without having to restore it, or to do a save at any stage of the workflow job -- not only in post phase.
+### The all-in-one Red Team browser extension for **Web Pentesters**
 
-## Documentation
+HackTools, is a web extension facilitating your **web application penetration tests**, it includes **cheat sheets** as well as all the **tools** used during a test such as XSS payloads, Reverse shells and much more.
 
-### Inputs
+With the extension you **no longer need to search for payloads in different websites** or in your local storage space, most of the tools are accessible in one click. HackTools is accessible either in **pop up mode** or in a whole tab in the **Devtools** part of the browser with F12.
 
-* `key` - An explicit key for a cache entry. See [creating a cache key](../README.md#creating-a-cache-key).
-* `path` - A list of files, directories, and wildcard patterns to cache. See [`@actions/glob`](https://github.com/actions/toolkit/tree/main/packages/glob) for supported patterns.
-* `upload-chunk-size` - The chunk size used to split up large files during upload, in bytes
+### Current functions
 
-### Outputs
+- Dynamic Reverse Shell generator (PHP, Bash, Ruby, Python, Perl, Netcat)
+- Shell Spawning (TTY Shell Spawning)
+- MSF Venom Builder
+- XSS Payloads
+- Basic SQLi payloads
+- Local file inclusion payloads (LFI)
+- Data Encoding
+- Obfuscated Files or Information
+- Hash Generator (MD5, SHA1, SHA256, SHA512, SM3)
+- Useful Linux commands (Port Forwarding, SUID)
+- RSS Feed (Exploit DB, Cisco Security Advisories, CXSECURITY)
+- CVE Search Engine
+- Various method of data exfiltration and download from a remote machine
 
-This action has no outputs.
+## Preview
 
-## Use cases
+<div align='center'>
+  <img alt="preview_1" src="./src/assets/img/preview.gif?raw=true" />
+</div>
+
+<div align='center'>
+  <img alt="preview_2" src="https://i.imgur.com/74AJxmX.png" />
+</div>
+
+<div align='center'>
+  <img alt="preview_3" src="https://i.imgur.com/syUdtLS.png" />
+</div>
+
+<div align='center'>
+  <img alt="preview_4" src="https://i.imgur.com/sGiP3CZ.png" />
+</div>
+
+<div align='center'>
+  <img alt="preview_5" src="https://i.imgur.com/63xoeVN.png" />
+</div>
 
 
-### Only save cache
+# Install the extension
+    
+<h2> 
+  <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/chromium.svg" alt="chromium_icon" title='Chromium' width="25" height="25" style="float:left;" />
+  Chromium based browser
+</h2>
 
-If you are using separate jobs for generating common artifacts and sharing them across jobs, this action will take care of your cache saving needs.
+You can download the **latest build** [here.](https://github.com/LasCC/Hack-Tools/releases)
 
-```yaml
-steps:
-  - uses: actions/checkout@v4
+Or, you can download the extension on the **chrome web store** [here.](https://chrome.google.com/webstore/detail/hack-tools/cmbndhnoonmghfofefkcccljbkdpamhi)
 
-  - name: Install Dependencies
-    run: /install.sh
+Otherwise, you can build the project yourself from the source code
 
-  - name: Build artifacts
-    run: /build.sh
+<h2> 
+  <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/firefox.svg" alt="firefox_icon" title='Firefox' width="25" height="25" style="float:left;" /> 
+  Mozilla Firefox
+</h2>
 
-  - uses: actions/cache/save@v4
-    id: cache
-    with:
-      path: path/to/dependencies
-      key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+You can download **HackTools** on the Firefox browser add-ons [here.](https://addons.mozilla.org/en-US/firefox/addon/hacktools/)
+
+<h2> 
+  <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/safari.svg" alt="safari_icon" title='Safari' width="25" height="25" style="float:left;" /> 
+  Instructions to build for Safari
+</h2>
+
+Create a safari web extension project using the command below. *This is to be run once.*
+
+```bash
+xcrun safari-web-extension-coverter [path_to_dist_folder]
 ```
 
-### Re-evaluate cache key while saving
+Follow the instructions to create the project the default language should be Swift.
 
-With this save action, the key can now be re-evaluated while executing the action. This helps in cases where lockfiles are generated during the build.
+- Build project.
+- Open Safari and enable unsigned extensions; Develop -> Allow Unsigned Extensions.
+- Open Safari -> Preferences -> Extensions and enable Hack-Tools
+- Click on the extension icon and switch to full screen mode.
 
-Let's say we have a restore step that computes a key at runtime.
+*Instructions provided by [jayluxferro](https://github.com/LasCC/Hack-Tools/issues/88)*
 
-#### Restore a cache
+### Build from source code
 
-```yaml
-uses: actions/cache/restore@v4
-id: restore-cache
-with:
-    key: cache-${{ hashFiles('**/lockfiles') }}
+```bash
+git clone https://github.com/LasCC/Hack-Tools.git
+cd Hack-Tools
+npm install && npm run build
 ```
 
-#### Case 1 - Where a user would want to reuse the key as it is
-```yaml
-uses: actions/cache/save@v4
-with:
-    key: ${{ steps.restore-cache.outputs.cache-primary-key }}
-```
+Once the build is done correctly, webpack will create a new folder called **dist**
 
-#### Case 2 - Where the user would want to re-evaluate the key
+After that you need to go to the **extension** tab on your chrome based navigator and turn on the **developer mode**
 
-```yaml
-uses: actions/cache/save@v4
-with:
-    key: npm-cache-${{hashfiles(package-lock.json)}}
-```
+<img alt="extension_tutorial" src="https://i.imgur.com/ZHwUTfk.png" />
 
-### Always save cache
+Then click on the **load unpacked** button in the top left corner
 
-There are instances where some flaky test cases would fail the entire workflow and users would get frustrated because the builds would run for hours and the cache couldn't be saved as the workflow failed in between.
-For such use-cases, users now have the ability to use the `actions/cache/save` action to save the cache by using an [`always()`](https://docs.github.com/actions/writing-workflows/choosing-what-your-workflow-does/expressions#always) condition.
-This way the cache will always be saved if generated, or a warning will be generated that nothing is found on the cache path. Users can also use the `if` condition to only execute the `actions/cache/save` action depending on the output of previous steps. This way they get more control of when to save the cache.
+<img alt="extension_tutorial" src="https://i.imgur.com/TLDjLyO.png" />
 
-To avoid saving a cache that already exists, the `cache-hit` output from a restore step should be checked.
+Once you clicked on the button you just need to select the **dist folder** and that's it ! 🎉
 
-The `cache-primary-key` output from the restore step should also be used to ensure
-the cache key does not change during the build if it's calculated based on file contents.
+<img alt="extension_tutorial" src="https://i.imgur.com/fH894v8.png" />
 
-```yaml
-name: Always Caching Primes
+## Authors
 
-on: push
+👤 <a href="http://github.com/LasCC" alt="Github_account_Ludovic_COULON">**Ludovic COULON**<a/> & <a href="http://github.com/rb-x" alt="Github_account_Riadh_BOUCHAHOUA">**Riadh BOUCHAHOUA**<a/>
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+## Show your support
 
-    steps:
-    - uses: actions/checkout@v4
+You can give a ⭐️ if this project helped you !
 
-    - name: Restore cached Primes
-      id: cache-primes-restore
-      uses: actions/cache/restore@v4
-      with:
-        key: ${{ runner.os }}-primes
-        path: |
-          path/to/dependencies
-          some/other/dependencies
+Note that this project is maintained, developed and made available for **free**, you can offer us a coffee, it will be very **encouraging and greatly appreciated** 😊
 
-    # Intermediate workflow steps
-
-    - name: Always Save Primes
-      id: cache-primes-save
-      if: always() && steps.cache-primes-restore.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        key: ${{ steps.cache-primes-restore.outputs.cache-primary-key }}
-        path: |
-          path/to/dependencies
-          some/other/dependencies
-```
+<a href="https://www.paypal.me/hacktoolsEXT" target="_blank"><img src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" alt="Paypal" style="height: 30px !important;width: auto !important"></a>
